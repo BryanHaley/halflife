@@ -718,7 +718,8 @@ void PlayCDTrack( int iTrack )
 	{
 		char string [ 64 ];
 
-		sprintf( string, "cd play %3d\n", iTrack );
+		// VS2017: Using secure _s variants
+		sprintf_s( string, "cd play %3d\n", iTrack );
 		CLIENT_COMMAND ( pClient, string);
 	}
 }
@@ -1368,18 +1369,19 @@ IMPLEMENT_SAVERESTORE(CChangeLevel,CBaseTrigger);
 
 void CChangeLevel :: KeyValue( KeyValueData *pkvd )
 {
+	// VS2017: Using secure _s variants
 	if (FStrEq(pkvd->szKeyName, "map"))
 	{
 		if (strlen(pkvd->szValue) >= cchMapNameMost)
 			ALERT( at_error, "Map name '%s' too long (32 chars)\n", pkvd->szValue );
-		strcpy(m_szMapName, pkvd->szValue);
+		strcpy_s(m_szMapName, strlen(pkvd->szValue) + 1, pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
 	else if (FStrEq(pkvd->szKeyName, "landmark"))
 	{
 		if (strlen(pkvd->szValue) >= cchMapNameMost)
 			ALERT( at_error, "Landmark name '%s' too long (32 chars)\n", pkvd->szValue );
-		strcpy(m_szLandmarkName, pkvd->szValue);
+		strcpy_s(m_szLandmarkName, strlen(pkvd->szValue) + 1, pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
 	else if (FStrEq(pkvd->szKeyName, "changetarget"))
@@ -1503,7 +1505,7 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 		}
 	}
 	// This object will get removed in the call to CHANGE_LEVEL, copy the params into "safe" memory
-	strcpy(st_szNextMap, m_szMapName);
+	strcpy_s(st_szNextMap, strlen(m_szMapName) + 1, m_szMapName); // VS2017: Using secure _s variant
 
 	m_hActivator = pActivator;
 	SUB_UseTargets( pActivator, USE_TOGGLE, 0 );
@@ -1513,7 +1515,7 @@ void CChangeLevel :: ChangeLevelNow( CBaseEntity *pActivator )
 	pentLandmark = FindLandmark( m_szLandmarkName );
 	if ( !FNullEnt( pentLandmark ) )
 	{
-		strcpy(st_szNextSpot, m_szLandmarkName);
+		strcpy_s(st_szNextSpot, strlen(m_szLandmarkName) + 1, m_szLandmarkName); // VS2017: Using secure _s variant
 		gpGlobals->vecLandmarkOffset = VARS(pentLandmark)->origin;
 	}
 //	ALERT( at_console, "Level touches %d levels\n", ChangeList( levels, 16 ) );
@@ -1547,8 +1549,9 @@ int CChangeLevel::AddTransitionToList( LEVELLIST *pLevelList, int listCount, con
 		if ( pLevelList[i].pentLandmark == pentLandmark && strcmp( pLevelList[i].mapName, pMapName ) == 0 )
 			return 0;
 	}
-	strcpy( pLevelList[listCount].mapName, pMapName );
-	strcpy( pLevelList[listCount].landmarkName, pLandmarkName );
+	// VS2017: Using secure _s variant
+	strcpy_s( pLevelList[listCount].mapName, strlen(pMapName) + 1, pMapName );
+	strcpy_s( pLevelList[listCount].landmarkName, strlen(pLandmarkName) + 1, pLandmarkName );
 	pLevelList[listCount].pentLandmark = pentLandmark;
 	pLevelList[listCount].vecLandmarkOrigin = VARS(pentLandmark)->origin;
 
@@ -1722,12 +1725,12 @@ void NextLevel( void )
 	{
 		gpGlobals->mapname = ALLOC_STRING("start");
 		pChange = GetClassPtr( (CChangeLevel *)NULL );
-		strcpy(pChange->m_szMapName, "start");
+		strcpy_s(pChange->m_szMapName, "start");
 	}
 	else
 		pChange = GetClassPtr( (CChangeLevel *)VARS(pent));
 	
-	strcpy(st_szNextMap, pChange->m_szMapName);
+	strcpy_s(st_szNextMap, strlen(pChange->m_szMapName) + 1, pChange->m_szMapName); // VS2017: Using secure _s variant
 	g_fGameOver = TRUE;
 	
 	if (pChange->pev->nextthink < gpGlobals->time)

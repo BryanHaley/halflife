@@ -54,7 +54,8 @@ static CBasePlayer* FindPlayerByName(const char *pTestName)
 			if(pEnt && pEnt->IsPlayer())
 			{			
 				const char *pNetName = STRING(pEnt->pev->netname);
-				if(stricmp(pNetName, pTestName) == 0)
+				// VS2017: Using _ variant
+				if(_stricmp(pNetName, pTestName) == 0)
 				{
 					return (CBasePlayer*)pEnt;
 				}
@@ -74,7 +75,7 @@ static void VoiceServerDebug( char const *pFmt, ... )
 		return;
 
 	va_start( marker, pFmt );
-	_vsnprintf( msg, sizeof(msg), pFmt, marker );
+	_vsnprintf_s( msg, sizeof(msg), pFmt, marker ); // VS2017: Using secure _s variant
 	va_end( marker );
 
 	ALERT( at_console, "%s", msg );
@@ -174,13 +175,13 @@ bool CVoiceGameMgr::ClientCommand(CBasePlayer *pPlayer, const char *cmd)
 		return true;
 	}
 
-	bool bBan = stricmp(cmd, "vban") == 0;
+	bool bBan = _stricmp(cmd, "vban") == 0; // VS2017: Using _ variant
 	if(bBan && CMD_ARGC() >= 2)
 	{
 		for(int i=1; i < CMD_ARGC(); i++)
 		{
 			uint32 mask = 0;
-			sscanf(CMD_ARGV(i), "%x", &mask);
+			sscanf_s(CMD_ARGV(i), "%x", &mask); // VS2017: Using secure _s variant
 
 			if(i <= VOICE_MAX_PLAYERS_DW)
 			{
@@ -197,7 +198,7 @@ bool CVoiceGameMgr::ClientCommand(CBasePlayer *pPlayer, const char *cmd)
 		//UpdateMasks();		
 		return true;
 	}
-	else if(stricmp(cmd, "VModEnable") == 0 && CMD_ARGC() >= 2)
+	else if(_stricmp(cmd, "VModEnable") == 0 && CMD_ARGC() >= 2) // VS2017: Using _ variant
 	{
 		VoiceServerDebug( "CVoiceGameMgr::ClientCommand: VModEnable (%d)\n", !!atoi(CMD_ARGV(1)) );
 		g_PlayerModEnable[playerClientIndex] = !!atoi(CMD_ARGV(1));

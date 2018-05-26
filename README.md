@@ -55,3 +55,26 @@ There are basic rules of conduct that should be followed at all times by everyon
 - Do not repeatedly update an open issue remarking that the issue persists.
 
 Remember: Just because the issue you reported was reported here does not mean that it is an issue with Half-Life.  As well, should your issue not be resolved immediately, it does not mean that a resolution is not being researched or tested.  Patience is always appreciated.
+
+This Fork
+======================
+
+The purpose of this fork is to update the Half-Life project to compile with Visual Studio 2017 and the v141 Windows Platform Toolset with no errors or warnings.
+
+What's been updated
+-------
+
+The bulk of the changes consist of updating the usage of old, insecure C string manipulation functions (such as strcpy, strcat, etc) with their corresponding C11 _s secure variants.
+
+In addition, cmath has been included in source files that use the abs function, as without that include, VS2017 will throw a "call of overloaded function 'abs' is ambiguous" error.
+
+Roadmap
+-------
+
+- ~~Update hldll project~~
+- Update hl_cdll project
+- Update ricochetdll project
+- Update ricochet_cdll project
+- Update dmcdll project
+- Update dmc_cdll project
+- Stability testing

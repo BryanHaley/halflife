@@ -1066,10 +1066,11 @@ int USENTENCEG_PickSequential(int isentenceg, char *szfound, int ipick, int fres
 	if (ipick >= count)
 		ipick = count-1;
 
-	strcpy(szfound, "!");
-	strcat(szfound, szgroupname);
-	sprintf(sznum, "%d", ipick);
-	strcat(szfound, sznum);
+	// VS2017: Using secure _s variants of strcpy, strcat, and sprintf
+	strcpy_s(szfound, strlen("!") + 1, "!");
+	strcat_s(szfound, strlen(szgroupname) + 1, szgroupname);
+	sprintf_s(sznum, "%d", ipick);
+	strcat_s(szfound, strlen(sznum) + 1, sznum);
 	
 	if (ipick >= count)
 	{
@@ -1128,10 +1129,11 @@ int USENTENCEG_Pick(int isentenceg, char *szfound)
 			USENTENCEG_InitLRU(plru, count);
 		else
 		{
-			strcpy(szfound, "!");
-			strcat(szfound, szgroupname);
-			sprintf(sznum, "%d", ipick);
-			strcat(szfound, sznum);
+			// VS2017: Using secure _s variants of strcpy, strcat, and sprintf
+			strcpy_s(szfound, strlen("!") + 1, "!");
+			strcat_s(szfound, strlen(szgroupname) + 1, szgroupname);
+			sprintf_s(sznum, "%d", ipick);
+			strcat_s(szfound, strlen(sznum) + 1, sznum);
 			return ipick;
 		}
 	}
@@ -1251,11 +1253,12 @@ void SENTENCEG_Stop(edict_t *entity, int isentenceg, int ipick)
 
 	if (isentenceg < 0 || ipick < 0)
 		return;
-	
-	strcpy(buffer, "!");
-	strcat(buffer, rgsentenceg[isentenceg].szgroupname);
-	sprintf(sznum, "%d", ipick);
-	strcat(buffer, sznum);
+
+	// VS2017: Using secure _s variants
+	strcpy_s(buffer, "!");
+	strcat_s(buffer, rgsentenceg[isentenceg].szgroupname);
+	sprintf_s(sznum, "%d", ipick);
+	strcat_s(buffer, sznum);
 
 	STOP_SOUND(entity, CHAN_VOICE, buffer);
 }
@@ -1323,7 +1326,8 @@ void SENTENCEG_Init()
 		if ( strlen( pString ) >= CBSENTENCENAME_MAX )
 			ALERT( at_warning, "Sentence %s longer than %d letters\n", pString, CBSENTENCENAME_MAX-1 );
 
-		strcpy( gszallsentencenames[gcallsentences++], pString );
+		// VS2017: Using secure _s variants
+		strcpy_s( gszallsentencenames[gcallsentences++], strlen(pString) + 1, pString );
 
 		j--;
 		if (j <= i)
@@ -1354,10 +1358,11 @@ void SENTENCEG_Init()
 				break;
 			}
 
-			strcpy(rgsentenceg[isentencegs].szgroupname, &(buffer[i]));
+			// VS2017: Using secure _s variants
+			strcpy_s(rgsentenceg[isentencegs].szgroupname, strlen(&(buffer[i])) + 1, &(buffer[i]));
 			rgsentenceg[isentencegs].count = 1;
 
-			strcpy(szgroup, &(buffer[i]));
+			strcpy_s(szgroup, strlen(&(buffer[i])) + 1, &(buffer[i]));
 
 			continue;
 		}
@@ -1395,13 +1400,20 @@ int SENTENCEG_Lookup(const char *sample, char *sentencenum)
 	// this is a sentence name; lookup sentence number
 	// and give to engine as string.
 	for (i = 0; i < gcallsentences; i++)
-		if (!stricmp(gszallsentencenames[i], sample+1))
+		// VS2017: Using _ variants
+		if (!_stricmp(gszallsentencenames[i], sample+1))
 		{
 			if (sentencenum)
 			{
-				strcpy(sentencenum, "!");
-				sprintf(sznum, "%d", i);
-				strcat(sentencenum, sznum);
+				// VS2017: Using secure _s variants
+				/*strcpy_s(sentencenum, strlen("!") + 1, "!");
+				sprintf_s(sznum, "%d", i);
+				strcat_s(sentencenum, strlen(sznum) + 1, sznum);*/
+
+				// VS2017 TODO: Fix crash when using _s variants
+				strcpy_s(sentencenum, strlen("!") + 1, "!");
+				sprintf_s(sznum, "%d", i);
+				strcat_s(sentencenum, strlen(sznum) + 2, sznum);
 			}
 			return i;
 		}
@@ -1592,7 +1604,8 @@ void TEXTURETYPE_Init()
 		// null-terminate name and save in sentences array
 		j = min (j, CBTEXTURENAMEMAX-1+i);
 		buffer[j] = 0;
-		strcpy(&(grgszTextureName[gcTextures++][0]), &(buffer[i]));
+		// VS2017: Using secure _s variants
+		strcpy_s(&(grgszTextureName[gcTextures++][0]), strlen(&(buffer[i])) + 1, &(buffer[i]));
 	}
 
 	g_engfuncs.pfnFreeFile( pMemFile );
@@ -1612,7 +1625,8 @@ char TEXTURETYPE_Find(char *name)
 
 	for (int i = 0; i < gcTextures; i++)
 	{
-		if (!strnicmp(name, &(grgszTextureName[i][0]), CBTEXTURENAMEMAX-1))
+		// VS2017: Using _ variant
+		if (!_strnicmp(name, &(grgszTextureName[i][0]), CBTEXTURENAMEMAX-1))
 			return (grgchTextureType[i]);
 	}
 
@@ -1674,7 +1688,8 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int
 			if (*pTextureName == '{' || *pTextureName == '!' || *pTextureName == '~' || *pTextureName == ' ')
 				pTextureName++;
 			// '}}'
-			strcpy(szbuffer, pTextureName);
+			// VS2017: Using secure _s variants
+			strcpy_s(szbuffer, strlen(pTextureName) + 1, pTextureName);
 			szbuffer[CBTEXTURENAMEMAX - 1] = 0;
 				
 			// ALERT ( at_console, "texture hit: %s\n", szbuffer);

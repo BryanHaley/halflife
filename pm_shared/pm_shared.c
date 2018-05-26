@@ -158,13 +158,14 @@ void PM_SwapTextures( int i, int j )
 	char chTemp;
 	char szTemp[ CBTEXTURENAMEMAX ];
 
-	strcpy( szTemp, grgszTextureName[ i ] );
+	// VS2017: Using secure _s variant
+	strcpy_s( szTemp, strlen(grgszTextureName[ i ]) + 1, grgszTextureName[ i ] );
 	chTemp = grgchTextureType[ i ];
 	
-	strcpy( grgszTextureName[ i ], grgszTextureName[ j ] );
+	strcpy_s( grgszTextureName[ i ], strlen(grgszTextureName[ j ]) + 1, grgszTextureName[ j ] );
 	grgchTextureType[ i ] = grgchTextureType[ j ];
 
-	strcpy( grgszTextureName[ j ], szTemp );
+	strcpy_s( grgszTextureName[ j ], strlen(szTemp) + 1, szTemp );
 	grgchTextureType[ j ] = chTemp;
 }
 
@@ -178,7 +179,8 @@ void PM_SortTextures( void )
 	{
 		for ( j = i + 1; j < gcTextures; j++ )
 		{
-			if ( stricmp( grgszTextureName[ i ], grgszTextureName[ j ] ) > 0 )
+			// VS2017: Using _ variant
+			if ( _stricmp( grgszTextureName[ i ], grgszTextureName[ j ] ) > 0 )
 			{
 				// Swap
 				//
@@ -247,7 +249,7 @@ void PM_InitTextureTypes()
 		// null-terminate name and save in sentences array
 		j = min (j, CBTEXTURENAMEMAX-1+i);
 		buffer[j] = 0;
-		strcpy(&(grgszTextureName[gcTextures++][0]), &(buffer[i]));
+		strcpy_s(&(grgszTextureName[gcTextures++][0]), strlen(&(buffer[i])) + 1, &(buffer[i])); // VS2017: Using secure _s variant
 	}
 
 	// Must use engine to free since we are in a .dll
@@ -272,7 +274,7 @@ char PM_FindTextureType( char *name )
 	{
 		pivot = ( left + right ) / 2;
 
-		val = strnicmp( name, grgszTextureName[ pivot ], CBTEXTURENAMEMAX-1 );
+		val = _strnicmp( name, grgszTextureName[ pivot ], CBTEXTURENAMEMAX-1 ); // VS2017: Using _ variant
 		if ( val == 0 )
 		{
 			return grgchTextureType[ pivot ];
@@ -487,7 +489,7 @@ void PM_CatagorizeTextureType( void )
 		pTextureName++;
 	// '}}'
 	
-	strcpy( pmove->sztexturename, pTextureName);
+	strcpy_s( pmove->sztexturename, strlen(pTextureName)+1, pTextureName); // VS2017: Using secure _s variant
 	pmove->sztexturename[ CBTEXTURENAMEMAX - 1 ] = 0;
 		
 	// get texture type

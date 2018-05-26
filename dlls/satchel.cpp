@@ -424,15 +424,16 @@ void CSatchel::WeaponIdle( void )
 
 	switch( m_chargeReady )
 	{
+		// VS2017: Using secure _s variants
 	case 0:
 		SendWeaponAnim( SATCHEL_FIDGET1 );
 		// use tripmine animations
-		strcpy( m_pPlayer->m_szAnimExtention, "trip" );
+		strcpy_s( m_pPlayer->m_szAnimExtention, "trip" );
 		break;
 	case 1:
 		SendWeaponAnim( SATCHEL_RADIO_FIDGET1 );
 		// use hivehand animations
-		strcpy( m_pPlayer->m_szAnimExtention, "hive" );
+		strcpy_s( m_pPlayer->m_szAnimExtention, "hive" );
 		break;
 	case 2:
 		if ( !m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] )
@@ -452,7 +453,7 @@ void CSatchel::WeaponIdle( void )
 		SendWeaponAnim( SATCHEL_DRAW );
 
 		// use tripmine animations
-		strcpy( m_pPlayer->m_szAnimExtention, "trip" );
+		strcpy_s( m_pPlayer->m_szAnimExtention, "trip" );
 
 		m_flNextPrimaryAttack = GetNextAttackDelay(0.5);
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;

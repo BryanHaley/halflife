@@ -15,6 +15,7 @@
 //
 // teamplay_gamerules.cpp
 //
+
 #include	"extdll.h"
 #include	"util.h"
 #include	"cbase.h"
@@ -43,7 +44,7 @@ CHalfLifeTeamplay :: CHalfLifeTeamplay()
 	m_szTeamList[0] = 0;
 
 	// Cache this because the team code doesn't want to deal with changing this in the middle of a game
-	strncpy( m_szTeamList, teamlist.string, TEAMPLAY_TEAMLISTLENGTH );
+	strncpy_s( m_szTeamList, teamlist.string, TEAMPLAY_TEAMLISTLENGTH ); // VS2017: Using secure _s variants
 
 	edict_t *pWorld = INDEXENT(0);
 	if ( pWorld && pWorld->v.team )
@@ -53,7 +54,8 @@ CHalfLifeTeamplay :: CHalfLifeTeamplay()
 			const char *pTeamList = STRING(pWorld->v.team);
 			if ( pTeamList && strlen(pTeamList) )
 			{
-				strncpy( m_szTeamList, pTeamList, TEAMPLAY_TEAMLISTLENGTH );
+				// VS2017: Using secure _s variants
+				strncpy_s( m_szTeamList, pTeamList, TEAMPLAY_TEAMLISTLENGTH );
 			}
 		}
 	}
@@ -181,7 +183,8 @@ const char *CHalfLifeTeamplay::SetDefaultPlayerTeam( CBasePlayer *pPlayer )
 {
 	// copy out the team name from the model
 	char *mdls = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model" );
-	strncpy( pPlayer->m_szTeamName, mdls, TEAM_NAME_LENGTH );
+	// VS2017: Using secure _s variants
+	strncpy_s( pPlayer->m_szTeamName, mdls, TEAM_NAME_LENGTH );
 
 	RecountTeams();
 
@@ -198,7 +201,7 @@ const char *CHalfLifeTeamplay::SetDefaultPlayerTeam( CBasePlayer *pPlayer )
 		{
 			pTeamName = TeamWithFewestPlayers();
 		}
-		strncpy( pPlayer->m_szTeamName, pTeamName, TEAM_NAME_LENGTH );
+		strncpy_s( pPlayer->m_szTeamName, pTeamName, TEAM_NAME_LENGTH ); // VS2017: Using secure _s variants
 	}
 
 	return pPlayer->m_szTeamName;
@@ -229,13 +232,15 @@ void CHalfLifeTeamplay::InitHUD( CBasePlayer *pPlayer )
 	char *mdls = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model" );
 	// update the current player of the team he is joining
 	char text[1024];
+
+	// VS2017: Using secure _s variants
 	if ( !strcmp( mdls, pPlayer->m_szTeamName ) )
 	{
-		sprintf( text, "* you are on team \'%s\'\n", pPlayer->m_szTeamName );
+		sprintf_s( text, "* you are on team \'%s\'\n", pPlayer->m_szTeamName );
 	}
 	else
 	{
-		sprintf( text, "* assigned to team %s\n", pPlayer->m_szTeamName );
+		sprintf_s( text, "* assigned to team %s\n", pPlayer->m_szTeamName );
 	}
 
 	ChangePlayerTeam( pPlayer, pPlayer->m_szTeamName, FALSE, FALSE );
@@ -286,7 +291,7 @@ void CHalfLifeTeamplay::ChangePlayerTeam( CBasePlayer *pPlayer, const char *pTea
 	}
 
 	// copy out the team name from the model
-	strncpy( pPlayer->m_szTeamName, pTeamName, TEAM_NAME_LENGTH );
+	strncpy_s( pPlayer->m_szTeamName, pTeamName, TEAM_NAME_LENGTH ); // VS2017: Using secure _s variants
 
 	g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", pPlayer->m_szTeamName );
 	g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team", pPlayer->m_szTeamName );
@@ -317,7 +322,8 @@ void CHalfLifeTeamplay::ClientUserInfoChanged( CBasePlayer *pPlayer, char *infob
 	// prevent skin/color/model changes
 	char *mdls = g_engfuncs.pfnInfoKeyValue( infobuffer, "model" );
 
-	if ( !stricmp( mdls, pPlayer->m_szTeamName ) )
+	// VS2017: Using _ variant
+	if ( !_stricmp( mdls, pPlayer->m_szTeamName ) )
 		return;
 
 	if ( defaultteam.value )
@@ -326,7 +332,7 @@ void CHalfLifeTeamplay::ClientUserInfoChanged( CBasePlayer *pPlayer, char *infob
 
 		g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", pPlayer->m_szTeamName );
 		g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team", pPlayer->m_szTeamName );
-		sprintf( text, "* Not allowed to change teams in this game!\n" );
+		sprintf_s( text, "* Not allowed to change teams in this game!\n" ); // VS2017: Using secure _s variants
 		UTIL_SayText( text, pPlayer );
 		return;
 	}
@@ -336,14 +342,15 @@ void CHalfLifeTeamplay::ClientUserInfoChanged( CBasePlayer *pPlayer, char *infob
 		int clientIndex = pPlayer->entindex();
 
 		g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", pPlayer->m_szTeamName );
-		sprintf( text, "* Can't change team to \'%s\'\n", mdls );
+		// VS2017: Using secure _s variants
+		sprintf_s( text, "* Can't change team to \'%s\'\n", mdls );
 		UTIL_SayText( text, pPlayer );
-		sprintf( text, "* Server limits teams to \'%s\'\n", m_szTeamList );
+		sprintf_s( text, "* Server limits teams to \'%s\'\n", m_szTeamList );
 		UTIL_SayText( text, pPlayer );
 		return;
 	}
 	// notify everyone of the team change
-	sprintf( text, "* %s has changed to team \'%s\'\n", STRING(pPlayer->pev->netname), mdls );
+	sprintf_s( text, "* %s has changed to team \'%s\'\n", STRING(pPlayer->pev->netname), mdls ); // VS2017: Using secure _s variants
 	UTIL_SayTextAll( text, pPlayer );
 
 	UTIL_LogPrintf( "\"%s<%i><%s><%s>\" joined team \"%s\"\n", 
@@ -433,7 +440,8 @@ int CHalfLifeTeamplay::PlayerRelationship( CBaseEntity *pPlayer, CBaseEntity *pT
 	if ( !pPlayer || !pTarget || !pTarget->IsPlayer() )
 		return GR_NOTTEAMMATE;
 
-	if ( (*GetTeamID(pPlayer) != '\0') && (*GetTeamID(pTarget) != '\0') && !stricmp( GetTeamID(pPlayer), GetTeamID(pTarget) ) )
+	// VS2017: Using _ variant
+	if ( (*GetTeamID(pPlayer) != '\0') && (*GetTeamID(pTarget) != '\0') && !_stricmp( GetTeamID(pPlayer), GetTeamID(pTarget) ) )
 	{
 		return GR_TEAMMATE;
 	}
@@ -491,7 +499,8 @@ int CHalfLifeTeamplay::GetTeamIndex( const char *pTeamName )
 		// try to find existing team
 		for ( int tm = 0; tm < num_teams; tm++ )
 		{
-			if ( !stricmp( team_names[tm], pTeamName ) )
+			// VS2017: Using _ variant
+			if ( !_stricmp( team_names[tm], pTeamName ) )
 				return tm;
 		}
 	}
@@ -565,17 +574,19 @@ void CHalfLifeTeamplay::RecountTeams( bool bResendInfo )
 
 	// Copy all of the teams from the teamlist
 	// make a copy because strtok is destructive
-	strcpy( teamlist, m_szTeamList );
+	// VS2017: Using secure _s variants
+	strcpy_s( teamlist, strlen(m_szTeamList) + 1, m_szTeamList );
 	pName = teamlist;
-	pName = strtok( pName, ";" );
+	strtok_s( pName, ";", &pName );
 	while ( pName != NULL && *pName )
 	{
 		if ( GetTeamIndex( pName ) < 0 )
 		{
-			strcpy( team_names[num_teams], pName );
+			strcpy_s( team_names[num_teams], strlen(pName) + 1, pName );
 			num_teams++;
 		}
-		pName = strtok( NULL, ";" );
+		//pName = strtok( NULL, ";" );
+		pName = NULL;
 	}
 
 	if ( num_teams < 2 )
@@ -606,7 +617,8 @@ void CHalfLifeTeamplay::RecountTeams( bool bResendInfo )
 					tm = num_teams;
 					num_teams++;
 					team_scores[tm] = 0;
-					strncpy( team_names[tm], pTeamName, MAX_TEAMNAME_LENGTH );
+					// VS2017: Using secure _s variants
+					strncpy_s( team_names[tm], pTeamName, MAX_TEAMNAME_LENGTH );
 				}
 			}
 

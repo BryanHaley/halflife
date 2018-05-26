@@ -1281,7 +1281,8 @@ int CGraph :: LinkVisibleNodes ( CLink *pLinkPool, FILE *file, int *piBadNode )
 					fprintf ( file, "  Entity on connection: %s, name: %s  Model: %s", STRING( VARS( pTraceEnt )->classname ), STRING ( VARS( pTraceEnt )->targetname ), STRING ( VARS(tr.pHit)->model ) );
 				}
 				
-				fprintf ( file, "\n", j );
+				//fprintf ( file, "\n", j );
+				fprintf(file, "\n"); // Fixing VS2017 Error: too many arguments passed for format string
 			}
 
 			pLinkPool [ cTotalLinks ].m_iDestNode = j;
@@ -1653,16 +1654,17 @@ void CTestHull :: BuildNodeGraph( void )
 
 	// make sure directories have been made
 	GET_GAME_DIR( szNrpFilename );
-	strcat( szNrpFilename, "/maps" );
+	strcat_s( szNrpFilename, "/maps" );
 	CreateDirectory( szNrpFilename, NULL );
-	strcat( szNrpFilename, "/graphs" );
+	strcat_s( szNrpFilename, "/graphs" );
 	CreateDirectory( szNrpFilename, NULL );
 
-	strcat( szNrpFilename, "/" );
-	strcat( szNrpFilename, STRING( gpGlobals->mapname ) );
-	strcat( szNrpFilename, ".nrp" );
+	strcat_s( szNrpFilename, "/" );
+	strcat_s( szNrpFilename, STRING( gpGlobals->mapname ) );
+	strcat_s( szNrpFilename, ".nrp" );
 
-	file = fopen ( szNrpFilename, "w+" );
+	//file = fopen ( szNrpFilename, "w+" );
+	fopen_s ( &file, szNrpFilename, "w+" ); // VS2017: Using secure variant of fopen, fopen_s
 
 	if ( !file )
 	{// file error
@@ -1890,17 +1892,20 @@ void CTestHull :: BuildNodeGraph( void )
 						switch ( hull )
 						{
 						case NODE_SMALL_HULL:	// if this hull can't fit, nothing can, so drop the connection
-							fprintf ( file, "NODE_SMALL_HULL step %f\n", step );
+							//fprintf ( file, "NODE_SMALL_HULL step %f\n", step );
+							fprintf ( file, "NODE_SMALL_HULL step %d\n", step ); // Fixing VS2017 Error: format string %f requires an argument of type 'double', but variadic argument 1 has type 'int'
 							pTempPool[ pSrcNode->m_iFirstLink + j ].m_afLinkInfo &= ~(bits_LINK_SMALL_HULL | bits_LINK_HUMAN_HULL | bits_LINK_LARGE_HULL);
 							fSkipRemainingHulls = TRUE;// don't bother checking larger hulls
 							break;
 						case NODE_HUMAN_HULL:
-							fprintf ( file, "NODE_HUMAN_HULL step %f\n", step );
+							//fprintf ( file, "NODE_HUMAN_HULL step %f\n", step );
+							fprintf ( file, "NODE_HUMAN_HULL step %d\n", step ); // Fixing VS2017 Error: format string %f requires an argument of type 'double', but variadic argument 1 has type 'int'
 							pTempPool[ pSrcNode->m_iFirstLink + j ].m_afLinkInfo &= ~(bits_LINK_HUMAN_HULL | bits_LINK_LARGE_HULL);
 							fSkipRemainingHulls = TRUE;// don't bother checking larger hulls
 							break;
 						case NODE_LARGE_HULL:
-							fprintf ( file, "NODE_LARGE_HULL step %f\n", step );
+							//fprintf ( file, "NODE_LARGE_HULL step %f\n", step );
+							fprintf ( file, "NODE_LARGE_HULL step %d\n", step ); // Fixing VS2017 Error: format string %f requires an argument of type 'double', but variadic argument 1 has type 'int'
 							pTempPool[ pSrcNode->m_iFirstLink + j ].m_afLinkInfo &= ~bits_LINK_LARGE_HULL;
 							break;
 						}
@@ -2323,16 +2328,17 @@ int CGraph :: FLoadGraph ( char *szMapName )
 	byte    *pMemFile;
 
 	// make sure the directories have been made
+	// VS2017: Using secure _s variants
 	char	szDirName[MAX_PATH];
 	GET_GAME_DIR( szDirName );
-	strcat( szDirName, "/maps" );
+	strcat_s( szDirName, "/maps" );
 	CreateDirectory( szDirName, NULL );
-	strcat( szDirName, "/graphs" );
+	strcat_s( szDirName, "/graphs" );
 	CreateDirectory( szDirName, NULL );
 
-	strcpy ( szFilename, "maps/graphs/" );
-	strcat ( szFilename, szMapName );
-	strcat( szFilename, ".nod" );
+	strcpy_s ( szFilename, "maps/graphs/" );
+	strcat_s ( szFilename, szMapName );
+	strcat_s ( szFilename, ".nod" );
 
 	pMemFile = aMemFile = LOAD_FILE_FOR_ME(szFilename, &length);
 
@@ -2503,16 +2509,17 @@ int CGraph :: FSaveGraph ( char *szMapName )
 
 	// make sure directories have been made
 	GET_GAME_DIR( szFilename );
-	strcat( szFilename, "/maps" );
+	strcat_s( szFilename, "/maps" );
 	CreateDirectory( szFilename, NULL );
-	strcat( szFilename, "/graphs" );
+	strcat_s( szFilename, "/graphs" );
 	CreateDirectory( szFilename, NULL );
 
-	strcat( szFilename, "/" );
-	strcat( szFilename, szMapName );
-	strcat( szFilename, ".nod" );
+	strcat_s( szFilename, "/" );
+	strcat_s( szFilename, szMapName );
+	strcat_s( szFilename, ".nod" );
 
-	file = fopen ( szFilename, "wb" );
+	//file = fopen ( szFilename, "wb" );
+	fopen_s ( &file, szFilename, "wb" ); // VS2017: Using secure variant of fopen, fopen_s
 
 	ALERT ( at_aiconsole, "Created: %s\n", szFilename );
 
@@ -2626,14 +2633,14 @@ int CGraph :: CheckNODFile ( char *szMapName )
 	char		szBspFilename[MAX_PATH];
 	char		szGraphFilename[MAX_PATH];
 	
+	// VS2017: Using secure _s variants
+	strcpy_s ( szBspFilename, "maps/" );
+	strcat_s ( szBspFilename, szMapName );
+	strcat_s( szBspFilename, ".bsp" );
 
-	strcpy ( szBspFilename, "maps/" );
-	strcat ( szBspFilename, szMapName );
-	strcat ( szBspFilename, ".bsp" );
-
-	strcpy ( szGraphFilename, "maps/graphs/" );
-	strcat ( szGraphFilename, szMapName );
-	strcat ( szGraphFilename, ".nod" );
+	strcpy_s ( szGraphFilename, "maps/graphs/" );
+	strcat_s( szGraphFilename, szMapName );
+	strcat_s( szGraphFilename, ".nod" );
 	
 	retValue = TRUE;
 

@@ -247,7 +247,7 @@ void AddAmmoNameToAmmoRegistry( const char *szAmmoname )
 		if ( !CBasePlayerItem::AmmoInfoArray[i].pszName)
 			continue;
 
-		if ( stricmp( CBasePlayerItem::AmmoInfoArray[i].pszName, szAmmoname ) == 0 )
+		if ( _stricmp( CBasePlayerItem::AmmoInfoArray[i].pszName, szAmmoname ) == 0 ) // VS2017: Using _ variant
 			return; // ammo already in registry, just quite
 	}
 
@@ -995,7 +995,7 @@ BOOL CBasePlayerWeapon :: DefaultDeploy( char *szViewModel, char *szWeaponModel,
 	m_pPlayer->TabulateAmmo();
 	m_pPlayer->pev->viewmodel = MAKE_STRING(szViewModel);
 	m_pPlayer->pev->weaponmodel = MAKE_STRING(szWeaponModel);
-	strcpy( m_pPlayer->m_szAnimExtention, szAnimExt );
+	strcpy_s( m_pPlayer->m_szAnimExtention, strlen(szAnimExt) + 1, szAnimExt ); // VS2017: Using secure _s variant
 	SendWeaponAnim( iAnim, skiplocal, body );
 
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
@@ -1461,7 +1461,7 @@ int CWeaponBox::GiveAmmo( int iCount, char *szName, int iMax, int *pIndex/* = NU
 
 	for (i = 1; i < MAX_AMMO_SLOTS && !FStringNull( m_rgiszAmmo[i] ); i++)
 	{
-		if (stricmp( szName, STRING( m_rgiszAmmo[i])) == 0)
+		if (_stricmp( szName, STRING( m_rgiszAmmo[i])) == 0) // VS2017: Using _ variant
 		{
 			if (pIndex)
 				*pIndex = i;

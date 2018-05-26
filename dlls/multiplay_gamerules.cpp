@@ -102,7 +102,7 @@ CHalfLifeMultiplay :: CHalfLifeMultiplay()
 			char szCommand[256];
 			
 			ALERT( at_console, "Executing listen server config file\n" );
-			sprintf( szCommand, "exec %s\n", lservercfgfile );
+			sprintf_s( szCommand, "exec %s\n", lservercfgfile );
 			SERVER_COMMAND( szCommand );
 		}
 	}
@@ -1332,7 +1332,7 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 			if ( strlen( com_token ) <= 0 )
 				break;
 
-			strcpy( szMap, com_token );
+			strcpy_s( szMap, strlen(com_token) + 1, com_token ); // VS2017: Using secure _s variants
 
 			// Any more tokens on this line?
 			if ( COM_TokenWaiting( pFileList ) )
@@ -1341,7 +1341,7 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 				if ( strlen( com_token ) > 0 )
 				{
 					hasbuffer = 1;
-					strcpy( szBuffer, com_token );
+					strcpy_s( szBuffer, strlen(com_token) + 1, com_token ); // VS2017: Using secure _s variants
 				}
 			}
 
@@ -1353,7 +1353,7 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 
 				item = new mapcycle_item_s;
 
-				strcpy( item->mapname, szMap );
+				strcpy_s( item->mapname, strlen(szMap) + 1, szMap ); // VS2017: Using secure _s variants
 
 				item->minplayers = 0;
 				item->maxplayers = 0;
@@ -1382,7 +1382,7 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 					g_engfuncs.pfnInfo_RemoveKey( szBuffer, "minplayers" );
 					g_engfuncs.pfnInfo_RemoveKey( szBuffer, "maxplayers" );
 
-					strcpy( item->rulebuffer, szBuffer );
+					strcpy_s( item->rulebuffer, strlen(szBuffer) + 1, szBuffer ); // VS2017: Using secure _s variants
 				}
 
 				item->next = cycle->items;
@@ -1494,13 +1494,14 @@ void ExtractCommandString( char *s, char *szCommand )
 		}
 		*o = 0;
 
-		strcat( szCommand, pkey );
+		// VS2017: Using secure _s variants
+		strcat_s( szCommand, strlen(pkey) + 1, pkey );
 		if ( strlen( value ) > 0 )
 		{
-			strcat( szCommand, " " );
-			strcat( szCommand, value );
+			strcat_s( szCommand, strlen(" ") + 1, " " );
+			strcat_s( szCommand, strlen(value) + 1, value );
 		}
-		strcat( szCommand, "\n" );
+		strcat_s( szCommand, strlen("\n") + 1, "\n" );
 
 		if (!*s)
 			return;
@@ -1525,7 +1526,8 @@ void CHalfLifeMultiplay :: ChangeLevel( void )
 	char szCommands[ 1500 ];
 	char szRules[ 1500 ];
 	int minplayers = 0, maxplayers = 0;
-	strcpy( szFirstMapInList, "hldm1" );  // the absolute default level is hldm1
+	// VS2017: Using secure _s variants
+	strcpy_s( szFirstMapInList, "hldm1" );  // the absolute default level is hldm1
 
 	int	curplayers;
 	BOOL do_cycle = TRUE;
@@ -1540,9 +1542,9 @@ void CHalfLifeMultiplay :: ChangeLevel( void )
 	curplayers = CountPlayers();
 
 	// Has the map cycle filename changed?
-	if ( stricmp( mapcfile, szPreviousMapCycleFile ) )
+	if ( _stricmp( mapcfile, szPreviousMapCycleFile ) )
 	{
-		strcpy( szPreviousMapCycleFile, mapcfile );
+		strcpy_s( szPreviousMapCycleFile, strlen(mapcfile) + 1, mapcfile );
 
 		DestroyMapCycle( &mapcycle );
 
@@ -1560,8 +1562,9 @@ void CHalfLifeMultiplay :: ChangeLevel( void )
 		mapcycle_item_s *item;
 
 		// Assume current map
-		strcpy( szNextMap, STRING(gpGlobals->mapname) );
-		strcpy( szFirstMapInList, STRING(gpGlobals->mapname) );
+		// VS2017: Using secure _s variants
+		strcpy_s( szNextMap, strlen(STRING(gpGlobals->mapname)) + 1, STRING(gpGlobals->mapname) );
+		strcpy_s( szFirstMapInList, strlen(STRING(gpGlobals->mapname)) + 1, STRING(gpGlobals->mapname) );
 
 		// Traverse list
 		for ( item = mapcycle.next_item; item->next != mapcycle.next_item; item = item->next )
@@ -1612,15 +1615,16 @@ void CHalfLifeMultiplay :: ChangeLevel( void )
 		mapcycle.next_item = item->next;
 
 		// Perform logic on current item
-		strcpy( szNextMap, item->mapname );
+		// VS2017: Using secure _s variants
+		strcpy_s( szNextMap, strlen(item->mapname) + 1, item->mapname );
 
 		ExtractCommandString( item->rulebuffer, szCommands );
-		strcpy( szRules, item->rulebuffer );
+		strcpy_s( szRules, strlen(item->rulebuffer) + 1, item->rulebuffer );
 	}
 
 	if ( !IS_MAP_VALID(szNextMap) )
 	{
-		strcpy( szNextMap, szFirstMapInList );
+		strcpy_s( szNextMap, strlen(szFirstMapInList) + 1, szFirstMapInList ); // VS2017: Using secure _s variants
 	}
 
 	g_fGameOver = TRUE;
@@ -1664,13 +1668,14 @@ void CHalfLifeMultiplay :: SendMOTDToClient( edict_t *client )
 	{
 		char chunk[MAX_MOTD_CHUNK+1];
 		
+		// VS2017: Using secure _s variants
 		if ( strlen( pFileList ) < MAX_MOTD_CHUNK )
 		{
-			strcpy( chunk, pFileList );
+			strcpy_s( chunk, strlen(pFileList) + 1, pFileList );
 		}
 		else
 		{
-			strncpy( chunk, pFileList, MAX_MOTD_CHUNK );
+			strncpy_s( chunk, pFileList, MAX_MOTD_CHUNK );
 			chunk[MAX_MOTD_CHUNK] = 0;		// strncpy doesn't always append the null terminator
 		}
 

@@ -20,6 +20,7 @@
 
 */
 
+#include <cmath>
 #include "extdll.h"
 #include "util.h"
 
@@ -1035,11 +1036,12 @@ void CBasePlayer::SetAnimation( PLAYER_ANIM playerAnim )
 		return;
 
 	case ACT_RANGE_ATTACK1:
+		// VS2017: Using secure _s variants
 		if ( FBitSet( pev->flags, FL_DUCKING ) )	// crouching
-			strcpy( szAnim, "crouch_shoot_" );
+			strcpy_s( szAnim, "crouch_shoot_" );
 		else
-			strcpy( szAnim, "ref_shoot_" );
-		strcat( szAnim, m_szAnimExtention );
+			strcpy_s( szAnim, "ref_shoot_" );
+		strcat_s( szAnim, m_szAnimExtention );
 		animDesired = LookupSequence( szAnim );
 		if (animDesired == -1)
 			animDesired = 0;
@@ -1063,11 +1065,12 @@ void CBasePlayer::SetAnimation( PLAYER_ANIM playerAnim )
 	case ACT_WALK:
 		if (m_Activity != ACT_RANGE_ATTACK1 || m_fSequenceFinished)
 		{
+			// VS2017: Using secure _s variants
 			if ( FBitSet( pev->flags, FL_DUCKING ) )	// crouching
-				strcpy( szAnim, "crouch_aim_" );
+				strcpy_s( szAnim, "crouch_aim_" );
 			else
-				strcpy( szAnim, "ref_aim_" );
-			strcat( szAnim, m_szAnimExtention );
+				strcpy_s( szAnim, "ref_aim_" );
+			strcat_s( szAnim, m_szAnimExtention );
 			animDesired = LookupSequence( szAnim );
 			if (animDesired == -1)
 				animDesired = 0;
@@ -1748,9 +1751,10 @@ void CBasePlayer::UpdateStatusBar()
 	char sbuf0[ SBAR_STRING_SIZE ];
 	char sbuf1[ SBAR_STRING_SIZE ];
 
+	// VS2017: Using secure _s variants
 	memset( newSBarState, 0, sizeof(newSBarState) );
-	strcpy( sbuf0, m_SbarString0 );
-	strcpy( sbuf1, m_SbarString1 );
+	strcpy_s( sbuf0, strlen(m_SbarString0) + 1, m_SbarString0 );
+	strcpy_s( sbuf1, strlen(m_SbarString1) + 1, m_SbarString1 );
 
 	// Find an ID Target
 	TraceResult tr;
@@ -1768,7 +1772,7 @@ void CBasePlayer::UpdateStatusBar()
 			if (pEntity->Classify() == CLASS_PLAYER )
 			{
 				newSBarState[ SBAR_ID_TARGETNAME ] = ENTINDEX( pEntity->edict() );
-				strcpy( sbuf1, "1 %p1\n2 Health: %i2%%\n3 Armor: %i3%%" );
+				strcpy_s( sbuf1, "1 %p1\n2 Health: %i2%%\n3 Armor: %i3%%" ); // VS2017: Using secure _s variants
 
 				// allies and medics get to see the targets health
 				if ( g_pGameRules->PlayerRelationship( this, pEntity ) == GR_TEAMMATE )
@@ -1798,7 +1802,7 @@ void CBasePlayer::UpdateStatusBar()
 			WRITE_STRING( sbuf0 );
 		MESSAGE_END();
 
-		strcpy( m_SbarString0, sbuf0 );
+		strcpy_s( m_SbarString0, sbuf0 ); // VS2017: Using secure _s variants
 
 		// make sure everything's resent
 		bForceResend = TRUE;
@@ -1811,7 +1815,7 @@ void CBasePlayer::UpdateStatusBar()
 			WRITE_STRING( sbuf1 );
 		MESSAGE_END();
 
-		strcpy( m_SbarString1, sbuf1 );
+		strcpy_s( m_SbarString1, sbuf1 ); // VS2017: Using secure _s variants
 
 		// make sure everything's resent
 		bForceResend = TRUE;
@@ -2306,10 +2310,10 @@ void CBasePlayer::CheckSuitUpdate()
 			if (isentence > 0)
 			{
 				// play sentence number
-
+				// VS2017: Using secure _s variants
 				char sentence[CBSENTENCENAME_MAX+1];
-				strcpy(sentence, "!");
-				strcat(sentence, gszallsentencenames[isentence]);
+				strcpy_s(sentence, "!");
+				strcat_s(sentence, gszallsentencenames[isentence]);
 				EMIT_SOUND_SUIT(ENT(pev), sentence);
 			}
 			else
@@ -3906,7 +3910,7 @@ int CBasePlayer::GetAmmoIndex(const char *psz)
 		if ( !CBasePlayerItem::AmmoInfoArray[i].pszName )
 			continue;
 
-		if (stricmp( psz, CBasePlayerItem::AmmoInfoArray[i].pszName ) == 0)
+		if (_stricmp( psz, CBasePlayerItem::AmmoInfoArray[i].pszName ) == 0)
 			return i;
 	}
 
