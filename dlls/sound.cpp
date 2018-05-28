@@ -1130,10 +1130,17 @@ int USENTENCEG_Pick(int isentenceg, char *szfound)
 		else
 		{
 			// VS2017: Using secure _s variants of strcpy, strcat, and sprintf
-			strcpy_s(szfound, strlen("!") + 1, "!");
+			/*strcpy_s(szfound, strlen("!") + 1, "!");
 			strcat_s(szfound, strlen(szgroupname) + 1, szgroupname);
 			sprintf_s(sznum, "%d", ipick);
-			strcat_s(szfound, strlen(sznum) + 1, sznum);
+			strcat_s(szfound, strlen(sznum) + 1, sznum);*/
+
+			// Secure variants cause random crashes at the moment, need to fix.
+			strcpy(szfound, "!");
+			strcat(szfound, szgroupname);
+			sprintf(sznum, "%d", ipick);
+			strcat(szfound, sznum);
+
 			return ipick;
 		}
 	}
